@@ -104,7 +104,7 @@ const updatePersonnal = async ({ idPersonnal, fullName, email, phone }) => {
 
 
 
-const deletePersonnal = async ({idPersonnal}) => {
+const deletePersonnal = async ({ idPersonnal }) => {
     const deletedUser = await AdminModel.findByIdAndDelete(idPersonnal);
     if (!deletedUser) {
         throw new Error("Can't delete User");

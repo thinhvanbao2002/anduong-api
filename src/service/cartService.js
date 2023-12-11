@@ -25,8 +25,8 @@ const addCart = async ({ idUser, idProduct }) => {
     }
 }
 
-const deleteCart = async ({ idCart, idProduct }) => {
-    const deletedCart = await CartModel.findOneAndRemove({ _id: idCart, idProduct: idProduct });
+const deleteCart = async ({ idCart }) => {
+    const deletedCart = await CartModel.findByIdAndRemove(idCart);
     if (deletedCart) {
         return deletedCart;
     } else {

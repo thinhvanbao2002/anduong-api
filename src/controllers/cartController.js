@@ -49,13 +49,12 @@ const addCart = async (req, res) => {
 const deleteCart = async (req, res) => {
   try {
     const idCart = req.params.id;
-    const idProduct = req.body;
 
     if (!idCart) {
       throw new Error("Input is required")
     }
 
-    const response = await cartService.deleteCart({ idCart, idProduct });
+    const response = await cartService.deleteCart({ idCart });
     return res.status(200).json(
       {
         status: "OK",
