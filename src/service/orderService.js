@@ -37,11 +37,20 @@ const searchOrder = async ({ perPage, keyword, page }) => {
 
 const createOrder = async ({ idUser, idVoucher, total, products }) => {
     // Tạo đơn hàng chính
-    const createdOrder = await OrderModel.create({
-        idUser: idUser,
-        idVoucher: idVoucher,
-        total: total
-    });
+    let createdOrder;
+
+    if (idVoucher === "") {
+        createdOrder = await OrderModel.create({
+            idUser: idUser,
+            total: total
+        });
+    } else {
+        createdOrder = await OrderModel.create({
+            idUser: idUser,
+            idVoucher: idVoucher,
+            total: total
+        });
+    }
 
     if (!createdOrder) {
         throw new Error("Can't create Order");
@@ -68,6 +77,7 @@ const createOrder = async ({ idUser, idVoucher, total, products }) => {
 
     return { createdOrder, detailOrders };
 };
+
 
 
 

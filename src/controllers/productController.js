@@ -16,7 +16,7 @@ const Schema = Joi.object().keys({
 
 const getProduct = async (req, res) => {
     try {
-        const perPage = 3;
+        const perPage = 12;
         let page = parseInt(req.query.page) || 1;
         page = Math.max(page, 1);
         const response = await productService.getProduct(page, perPage);

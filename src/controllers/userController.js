@@ -292,20 +292,18 @@ const verifyEmail = async (req, res) => {
         const token = req.params.token;
 
         const response = await userService.verifyEmail({ userID, token });
-        return res.status(200).json(
-            {
-                status: "OK",
-                data: response
-            }
-        )
+        if (response === "OK") {
+            const successMessage = `
+                <div style="text-align: center; padding: 20px; background-color: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6; border-radius: 5px;">
+                    <h1>Email verified successfully</h1>
+                    <p>Please <a href="http://localhost:3000/">login</a> to continue.</p>
+                </div>`;
+            res.send(successMessage);
+        }
 
     } catch (error) {
-        return res.status(400).json(
-            {
-                status: "ERR",
-                error: error.message
-            }
-        )
+        const errorMessage = '<div style="text-align: center; padding: 20px; background-color: #f2dede; color: #a94442; border: 1px solid #ebccd1; border-radius: 5px;"><h1>Email verification failed</h1></div>';
+        res.send(errorMessage);
     }
 }
 

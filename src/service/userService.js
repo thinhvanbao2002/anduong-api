@@ -61,7 +61,7 @@ const verifyEmail = async ({ userID, token }) => {
         existingUser.isVerified = true;
         await existingUser.save();
         await UserToken.findByIdAndRemove(existingToken._id);
-        return existingUser;
+        return "OK";
     }
 }
 

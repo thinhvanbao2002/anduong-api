@@ -3,7 +3,6 @@ import Joi from "joi";
 
 const Schema = Joi.object({
     idUser: Joi.string().label('idUser'),
-    idVoucher: Joi.string().label('idVoucher'),
     total: Joi.number().label('total'),
 });
 
@@ -64,7 +63,7 @@ const createOrder = async (req, res) => {
             throw new Error("Input is required")
         }
 
-        const validationInput = Schema.validate({ idUser, idVoucher, total });
+        const validationInput = Schema.validate({ idUser, total });
         if (validationInput.error) {
             const errorMessages = validationInput.error.details.map((error) => error.message);
             throw new Error(`Dữ liệu không hợp lệ: ${errorMessages.join(', ')}`);

@@ -4,7 +4,7 @@ const orderSchema = new mongoose.Schema(
     {
         idUser: {
             type: mongoose.Schema.Types.ObjectId,
-            required: false, // Thay vì "require", đúng là "required"
+            required: true, // Thay vì "require", đúng là "required"
             ref: 'users',
         },
         idVoucher: {

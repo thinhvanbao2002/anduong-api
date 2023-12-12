@@ -2,14 +2,15 @@ import CartModel from "../models/cartModel.js";
 import bcrypt from "bcrypt";
 
 const getCart = async ({ idUser }) => {
-    console.log(idUser);
-    const existingCart = await CartModel.find({ idUser: idUser });
-    if (existingCart.length > 0) {
-        return existingCart;
-    } else {
-        throw new Error("Can't find cart");
+    try {
+        console.log(idUser);
+        const existingCart = await CartModel.find({ idUser: idUser });
+        return existingCart; // Trả về existingCart dù có tìm thấy hay không
+    } catch (error) {
+        console.error(error.message);
+        throw new Error("Error while fetching cart data");
     }
-}
+};
 
 
 const addCart = async ({ idUser, idProduct }) => {
