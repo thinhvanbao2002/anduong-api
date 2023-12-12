@@ -83,6 +83,29 @@ const getById = async (req, res) => {
     }
 }
 
+
+const getByCategory = async (req, res) => {
+    try {
+        const idCategory = req.params.id;
+
+        const response = await productService.getProductByCategory({ idCategory });
+        return res.status(200).json(
+            {
+                status: "OK",
+                data: response
+            }
+        )
+
+    } catch (error) {
+        return res.status(400).json(
+            {
+                status: "ERR",
+                error: error.message
+            }
+        )
+    }
+}
+
 const createProduct = async (req, res) => {
     try {
         const { name, price, productsAvailable, description, idCategory } = req.body;
@@ -205,6 +228,7 @@ export default {
     getProduct,
     searchProduct,
     getById,
+    getByCategory,
     createProduct,
     updateProduct,
     deleteProduct

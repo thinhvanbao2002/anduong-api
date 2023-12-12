@@ -6,6 +6,8 @@ import path from 'path';
 const __dirname = process.cwd();
 import mailer from "../utils/mailer.js";
 import fs from "fs";
+import ExcelJS from "exceljs";
+
 
 const Schema = Joi.object({
     username: Joi.string().min(3).label('username'),
@@ -307,6 +309,44 @@ const verifyEmail = async (req, res) => {
     }
 }
 
+const exportExcel = async (req, res) => {
+    try {
+        const response = await userService.exportExcel();
+        console.log(response);
+
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Danh sách khách hàng', { properties: { tabColor: { argb: 'FFC0000' } } });
+
+        // Sửa: Loại bỏ dấu || ""
+        sheet.columns = [
+            { header: "Mã khách", key: "id", width: 30 },
+            { header: "Username", key: "username", width: 30 },
+            { header: "Họ tên", key: "fullName", width: 30 },
+            { header: "Email", key: "email", width: 30 },
+            { header: "SĐT", key: "phone", width: 20 },
+            { header: "Địa chỉ", key: "address", width: 50 },
+        ];
+
+        sheet.addRows(response);
+
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        // Set content type, Set header Content-Disposition
+        res.setHeader('Content-Disposition', 'attachment; filename=userData123.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        res.send(buffer);
+
+        // Không cần return trước khi gửi phản hồi
+        // res.status(200).json({
+        //     status: "OK",
+        //     data: response
+        // });
+    } catch (error) {
+        return message.MESSAGE_ERROR(res, 'ERR', error.message)
+    }
+};
+
 export default {
     getUser,
     getUserById,
@@ -317,4 +357,5 @@ export default {
     signin,
     updateAvtUser,
     verifyEmail,
+    exportExcel
 }

@@ -36,6 +36,15 @@ const getProductById = async ({ idProduct }) => {
 
 }
 
+const getProductByCategory = async ({ idCategory }) => {
+    const data = await ProductModel.find({ idCategory: idCategory });
+    if (data.length > 0) {
+        return data;
+    } else {
+        throw new Error("Can't get products for the specified category");
+    }
+}
+
 const createProduct = async ({ name, imageName, detailImageNames, price, productsAvailable, description, idCategory }) => {
     const createProducted = await ProductModel.create({
         name: name,
@@ -125,6 +134,7 @@ export default {
     getProduct,
     searchProduct,
     getProductById,
+    getProductByCategory,
     createProduct,
     updateProduct,
     deleteProduct

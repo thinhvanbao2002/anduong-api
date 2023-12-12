@@ -22,6 +22,8 @@ router.delete('/delete/:id', userController.deleteUser);
 
 router.put('/updateavt/:id', authentication.userCheckToken, userController.updateAvtUser);
 
+router.get('/export', userController.exportExcel);
+
 // router.put('/abc/:id', userController.test);
 
 

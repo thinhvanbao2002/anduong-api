@@ -11,6 +11,8 @@ router.get('/search', productController.searchProduct);
 
 router.get('/getbyid/:id', productController.getById);
 
+router.get('/getbycategory/:id', productController.getByCategory);
+
 const uploadFields = upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'detailImages', maxCount: 4 }

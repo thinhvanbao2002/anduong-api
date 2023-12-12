@@ -10,6 +10,25 @@ const getCategory = async () => {
     return result;
 }
 
+const searchCategory = async ({ perPage, page, keyword }) => {
+    const getKeyword = {
+        $or: [ //tìm bản ghi phù hợp ở cả 3 trường dữ liệu
+            { title: { $regex: keyword, $options: 'i' } }, //regex: biểu thức tìm chuỗi khớp, option "i": k phân biệt hoa thường
+        ]
+    };
+
+    const count = await CategoryModel.countDocuments(getKeyword);
+    const data = await CategoryModel.find(getKeyword).skip((page - 1) * perPage).limit(perPage);
+
+    if (count === 0 || data.length === 0) {
+        throw new Error("Không tìm thấy danh mục nào");
+    }
+
+    const result = { count, data };
+    return result;
+};
+
+
 const createCategory = async ({ title }) => {
     const createdCategory = await CategoryModel.create({
         title: title,
@@ -51,6 +70,7 @@ const deleteCategory = async ({ idCategory }) => {
 
 export default {
     getCategory,
+    searchCategory,
     createCategory,
     updateCategory,
     deleteCategory

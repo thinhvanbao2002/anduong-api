@@ -12,6 +12,25 @@ const getCart = async ({ idUser }) => {
     }
 };
 
+const searchCart = async ({ perPage, page, keyword }) => {
+    const regexKeyword = new RegExp(keyword, 'i'); // 'i' cho phép tìm kiếm không phân biệt chữ hoa chữ thường
+
+    const getKeyword = {
+        $or: [
+            { title: { $regex: regexKeyword } },
+        ]
+    };
+
+    const count = await CartModel.countDocuments(getKeyword);
+    const data = await CartModel.find(getKeyword).skip((page - 1) * perPage).limit(perPage);
+
+    if (count === 0 || data.length === 0) {
+        throw new Error("Không tìm thấy danh mục nào");
+    }
+
+    const result = { count, data };
+    return result;
+};
 
 const addCart = async ({ idUser, idProduct }) => {
     const createdCart = await CartModel.create({
@@ -39,6 +58,7 @@ const deleteCart = async ({ idCart }) => {
 
 export default {
     getCart,
+    searchCart,
     addCart,
     deleteCart
 }

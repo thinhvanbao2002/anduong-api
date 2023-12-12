@@ -162,6 +162,22 @@ const deleteUser = async (userID) => {
     return deletedUser;
 }
 
+const exportExcel = async () => {
+    try {
+        const data = await UserModel.find({}, 'username fullName email phone address');
+        if (!data.length) {
+            throw new Error("Can't get data User");
+        }
+        const formattedData = data.map(item => {
+            return item;
+        });
+        return formattedData;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
 export default {
     signin,
     verifyEmail,
@@ -171,5 +187,6 @@ export default {
     searchUser,
     updateAvtUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    exportExcel
 }

@@ -30,6 +30,29 @@ const getCategory = async (req, res) => {
     }
 }
 
+const searchCategory = async (req, res) => {
+    try {
+        const perPage = 3;
+        let page = req.query.page || 1;
+        page = Math.max(page, 1);
+        let keyword = req.query.keyword || "";
+        const response = await categoryService.searchCategory({ perPage, page, keyword });
+        return res.status(200).json(
+            {
+                status: "OK",
+                data: response
+            }
+        )
+    } catch (error) {
+        return res.status(400).json(
+            {
+                status: "ERR",
+                error: error.message
+            }
+        )
+    }
+}
+
 const createCategory = async (req, res) => {
     try {
         const title = req.body.title;
@@ -43,7 +66,7 @@ const createCategory = async (req, res) => {
             const errorMessages = validationInput.error.details.map((error) => error.message);
             throw new Error(`Dữ liệu không hợp lệ: ${errorMessages.join(', ')}`);
         }
-        const response = await categoryService.createCategory({title});
+        const response = await categoryService.createCategory({ title });
         return res.status(200).json(
             {
                 status: "OK",
@@ -118,6 +141,7 @@ const deleteCategory = async (req, res) => {
 
 export default {
     getCategory,
+    searchCategory,
     createCategory,
     updateCategory,
     deleteCategory,
