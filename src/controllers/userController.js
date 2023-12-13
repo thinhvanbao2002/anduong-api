@@ -148,7 +148,6 @@ const deleteUser = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { username, password } = req.body;
-        console.log(req.url);
 
         if (!username || !password) {
             throw new Error('Username and password are required');

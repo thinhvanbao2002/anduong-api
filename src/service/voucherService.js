@@ -1,4 +1,6 @@
 import VoucherModel from "../models/voucherModel.js";
+import OrderModel from "../models/orderModel.js";
+import moment from "moment";
 
 const getVoucher = async () => {
   const count = await VoucherModel.countDocuments();
@@ -6,9 +8,19 @@ const getVoucher = async () => {
   if (count === 0 || data.length === 0) {
     throw new Error("Can't get Voucher");
   }
-  const result = { count, data };
+
+  // Chuyển đổi timestamp của createdAt và updatedAt
+  const formattedData = data.map(voucher => ({
+    ...voucher.toObject(),
+    expiration_date: moment(voucher.expiration_date).format('MM:HH DD-MM-YYYY'),
+    createdAt: moment(voucher.createdAt).format('MM:HH DD-MM-YYYY'),
+    updatedAt: moment(voucher.updatedAt).format('MM:HH DD-MM-YYYY'),
+  }));
+
+  const result = { count, data: formattedData };
   return result;
 };
+
 
 const searchVoucher = async ({ keyword }) => {
   const getKeyword = {
@@ -68,6 +80,11 @@ const updateVoucher = async ({ idVoucher, title, off, expiration_date }) => {
 };
 
 const deleteVoucher = async ({ idVoucher }) => {
+  const checkOrder = await OrderModel.findOne({ idVoucher });
+  if (checkOrder) {
+    throw new Error("Cannot delete voucher because there are order associated with it.");
+  }
+
   const deletedVoucher = await VoucherModel.findByIdAndDelete(idVoucher);
   if (!deletedVoucher) {
     throw new Error("Can't delete Voucher");

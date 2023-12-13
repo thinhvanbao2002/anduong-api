@@ -23,7 +23,8 @@ const signin = async ({ username, password, fullName, email, userToken }) => {
         isVerified: false,
         phone: "",
         avt: "src\\files\\images\\avt.jpg",
-        address: ""
+        address: "",
+        status: true
     })
 
     createUser.password = "*****";
@@ -73,6 +74,8 @@ const login = async ({ username, password }) => {
             throw new Error('Invalid Password');
         } if (existingUser.isVerified == false) {
             throw new Error('Email not verify');
+        } if (existingUser.status != true) {
+            throw new Error('Account was delete');
         } else {
             return existingUser;
         }
@@ -155,10 +158,13 @@ const updateUser = async ({ userID, fullName, address, phone }) => {
 }
 
 const deleteUser = async (userID) => {
-    const deletedUser = await UserModel.findByIdAndDelete(userID);
+    const deletedUser = await UserModel.findById(userID);
+    console.log(deletedUser);
     if (!deletedUser) {
         throw new Error("Can't delete User");
     }
+
+    deletedUser.status = false;
     return deletedUser;
 }
 

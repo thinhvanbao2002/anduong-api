@@ -1,5 +1,6 @@
 import ProductModel from "../models/productModel.js";
 import DetailImageModel from "../models/detailImageModel.js";
+import DetailOrder from "../models/detailOrderModel.js";
 
 const getProduct = async (page, perPage) => {
     const count = await ProductModel.count();
@@ -122,6 +123,11 @@ const updateProduct = async ({ idProduct, name, imageName, detailImageNames, pri
 
 
 const deleteProduct = async (idProduct) => {
+    const checkOrder = await DetailOrder.findOne({ idProduct });
+    if (checkOrder) {
+        throw new Error("Cannot delete product because there are order associated with it.");
+    }
+
     const deletedProduct = await ProductModel.findByIdAndDelete(idProduct);
     const deletedDetailImageProduct = await DetailImageModel.findByIdAndDelete(idProduct);
     if (!deletedProduct) {
