@@ -1,5 +1,6 @@
 import orderService from "../service/orderService.js";
 import Joi from "joi";
+import ExcelJS from "exceljs";
 
 const Schema = Joi.object({
     idUser: Joi.string().label('idUser'),
@@ -38,6 +39,37 @@ const searchOrder = async (req, res) => {
         page = Math.max(page, 1);
 
         const response = await orderService.searchOrder({ perPage, keyword, page });
+        return res.status(200).json(
+            {
+                status: "OK",
+                data: response
+            }
+        )
+
+    } catch (error) {
+        return res.status(400).json(
+            {
+                status: "ERR",
+                error: error.message
+            }
+        )
+    }
+}
+
+const searchOrderByDate = async (req, res) => {
+    try {
+        let startDate = req.query.startdate;
+        let endDate = req.query.enddate;
+        let perPage = parseInt(req.query.perpage) || 3;
+        // perPage = Math.max(perPage, 3);
+        let page = parseInt(req.query.page) || 1;
+        page = Math.max(page, 1);
+
+        if (!startDate || !endDate) {
+            throw new Error("Invalid date range");
+        }
+
+        const response = await orderService.searchOrderByDate({ startDate, endDate, page, perPage });
         return res.status(200).json(
             {
                 status: "OK",
@@ -141,10 +173,69 @@ const deleteOrder = async (req, res) => {
     }
 }
 
+const exportExcel = async (req, res) => {
+    try {
+        const response = await orderService.exportExcel();
+        console.log(response);
+
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Danh sách đơn hàng', { properties: { tabColor: { argb: 'FFC0000' } } });
+
+        // Sửa: Loại bỏ dấu || ""
+        sheet.columns = [
+            { header: "Mã đơn hàng", key: "_id", width: 30 },
+            { header: "Họ tên", key: "idUser.fullName", width: 20 },
+            { header: "Email", key: "idUser.email", width: 20 },
+            { header: "SĐT", key: "idUser.phone", width: 20 },
+            { header: "Địa chỉ", key: "idUser.address", width: 50 },
+            { header: "Mã voucher", key: "idVoucher._id", width: 30 },
+            { header: "Giảm giá (%)", key: "idVoucher.off", width: 10 },
+            { header: "Thành tiền", key: "total", width: 10 },
+            { header: "Ngày tạo", key: "createdAt", width: 20 },
+            { header: "Cập nhật gần đây", key: "updatedAt", width: 20 },
+            { header: "Chi tiết đơn hàng", key: "detailOrders", width: 50 },
+        ];
+
+        // Thêm dữ liệu vào sheet
+        response.forEach(order => {
+            const row = {
+                _id: order._id,
+                "idUser.fullName": order.idUser ? order.idUser.fullName : '',
+                "idUser.email": order.idUser ? order.idUser.email : '',
+                "idUser.phone": order.idUser ? order.idUser.phone : '',
+                "idUser.address": order.idUser ? order.idUser.address : '',
+                "idVoucher._id": order.idVoucher ? order.idVoucher._id : '',
+                "idVoucher.off": order.idVoucher ? order.idVoucher.off : '',
+                "total": order.total,
+                "createdAt": order.createdAt,
+                "updatedAt": order.updatedAt,
+                "detailOrders": order.detailOrders.map(detailOrder => detailOrder.idProduct.name).join(', ')
+            };
+
+            sheet.addRow(row);
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        // Set content type, Set header Content-Disposition
+        res.setHeader('Content-Disposition', 'attachment; filename=orderData.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        res.send(buffer);
+    } catch (error) {
+        return res.status(400).json({
+            status: "ERR",
+            error: error.message
+        });
+    }
+};
+
 export default {
     getOrder,
     searchOrder,
+    searchOrderByDate,
     createOrder,
     updateOrder,
     deleteOrder,
+    exportExcel,
 }

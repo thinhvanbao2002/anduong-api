@@ -1,6 +1,7 @@
 import OrderModel from "../models/orderModel.js";
 import DetailOrder from "../models/detailOrderModel.js";
 import UserModel from "../models/userModel.js";
+import ProductModel from "../models/productModel.js";
 
 const getOrder = async ({ perPage, page }) => {
     const count = await OrderModel.count();
@@ -32,7 +33,34 @@ const searchOrder = async ({ perPage, keyword, page }) => {
     return data;
 };
 
+const searchOrderByDate = async ({ startDate, endDate, page, perPage }) => {
+    try {
+        const data = await OrderModel.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: new Date(startDate),
+                        $lte: new Date(endDate),
+                    },
+                },
+            },
+        ])
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * perPage)
+            .limit(perPage);
 
+        const count = data.length;
+
+        // Check if there is any data returned
+        if (data.length > 0) {
+            return { count, data };
+        } else {
+            throw new Error("No records found");
+        }
+    } catch (error) {
+        throw new Error(`Error searching for order: ${error.message}`);
+    }
+};
 
 
 const createOrder = async ({ idUser, idVoucher, total, products }) => {
@@ -109,10 +137,43 @@ const deleteOrder = async ({ idOrder }) => {
     return { deletedOrder, deleteDetailOrder };
 }
 
+const exportExcel = async () => {
+    try {
+        const dataOrder = await OrderModel.find()
+            .populate('idUser')
+            .populate('idVoucher');
+
+        if (!dataOrder) {
+            throw new Error("Can't find order");
+        }
+
+        const dataDetailOrder = await DetailOrder.find()
+            .populate('idProduct');
+
+        if (!dataDetailOrder) {
+            throw new Error("Can't find detailorder");
+        }
+
+        const result = dataOrder.map(order => {
+            const detailOrders = dataDetailOrder.filter(detailOrder => detailOrder.idOrder.equals(order._id));
+            return { ...order.toObject(), detailOrders };
+        });
+
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+
+
 export default {
     getOrder,
     searchOrder,
+    searchOrderByDate,
     createOrder,
     updateOrder,
-    deleteOrder
+    deleteOrder,
+    exportExcel
 }

@@ -20,5 +20,5 @@ const voucherSchema = new mongoose.Schema(
     }
 )
 
-const Voucher = mongoose.model('Voucher', voucherSchema); // Fix: Change `mongoose.Schema` to `mongoose.model`
+const Voucher = mongoose.model('vouchers', voucherSchema); // Fix: Change `mongoose.Schema` to `mongoose.model`
 export default Voucher;
