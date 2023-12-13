@@ -130,6 +130,21 @@ const deleteProduct = async (idProduct) => {
     return { deletedProduct, deletedDetailImageProduct };
 }
 
+const exportExcel = async () => {
+    try {
+        const dataOProducts = await ProductModel.find()
+            .populate('idCategory');
+
+        if (!dataOProducts) {
+            throw new Error("Can't find product");
+        }
+
+        return dataOProducts;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export default {
     getProduct,
     searchProduct,
@@ -137,5 +152,6 @@ export default {
     getProductByCategory,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    exportExcel
 }

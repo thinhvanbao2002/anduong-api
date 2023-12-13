@@ -23,4 +23,6 @@ router.put('/update/:id', uploadFields, productController.updateProduct);
 
 router.delete('/delete/:id', productController.deleteProduct);
 
+router.get('/export', productController.exportExcel);
+
 export default router;

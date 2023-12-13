@@ -3,6 +3,8 @@ import Joi from "joi";
 import formidable from "formidable";
 import path from "path";
 import fs from "fs";
+import ExcelJS from "exceljs";
+
 
 const Schema = Joi.object().keys({
     name: Joi.string().min(3).max(30).label('name'),
@@ -224,6 +226,56 @@ const deleteProduct = async (req, res) => {
     }
 }
 
+const exportExcel = async (req, res) => {
+    try {
+        const response = await productService.exportExcel();
+        
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Danh sách sản phẩm', { properties: { tabColor: { argb: 'FFC0000' } } });
+
+        // Đặt tiêu đề cho các cột
+        sheet.columns = [
+            { header: "Mã sản phẩm", key: "_id", width: 30 },
+            { header: "Tên sản phẩm", key: "name", width: 30 },
+            { header: "Danh mục", key: "idCategory.title", width: 30 },
+            { header: "Giá", key: "price", width: 20 },
+            { header: "Số lượng còn", key: "productsAvailable", width: 20 },
+            { header: "Đã bán", key: "sold", width: 20 },
+            { header: "Ngày tạo", key: "createdAt", width: 30 },
+            { header: "Cập nhật gần đây", key: "updatedAt", width: 30 },
+        ];
+
+        // Thêm dữ liệu vào sheet
+        response.forEach(product => {
+            const row = {
+                _id: product._id.toString(),
+                name: product.name,
+                "idCategory.title": product.idCategory ? product.idCategory.title : '',
+                price: product.price.toString(),
+                productsAvailable: product.productsAvailable.toString(),
+                sold: product.sold.toString(),
+                createdAt: product.createdAt.toISOString(),
+                updatedAt: product.updatedAt.toISOString(),
+            };
+
+            sheet.addRow(row);
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        // Set content type, Set header Content-Disposition
+        res.setHeader('Content-Disposition', 'attachment; filename=products_list.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        res.send(buffer);
+    } catch (error) {
+        return res.status(400).json({
+            status: "ERR",
+            error: error.message
+        });
+    }
+};
+
 export default {
     getProduct,
     searchProduct,
@@ -231,5 +283,6 @@ export default {
     getByCategory,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    exportExcel
 }

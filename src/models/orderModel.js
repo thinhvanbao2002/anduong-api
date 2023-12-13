@@ -4,12 +4,12 @@ const orderSchema = new mongoose.Schema(
     {
         idUser: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true, // Thay vì "require", đúng là "required"
+            required: true, 
             ref: 'users',
         },
         idVoucher: {
             type: mongoose.Schema.Types.ObjectId,
-            required: false, // Thay vì "require", đúng là "required"
+            required: false, 
             ref: 'vouchers',
         },
         total: {
