@@ -4,21 +4,21 @@ const detailOrderSchema = new mongoose.Schema(
     {
         idOrder: {
             type: mongoose.Schema.Types.ObjectId,
-            require: true,
+            required: true,
             ref: 'orders',
         },
         idProduct: {
             type: mongoose.Schema.Types.ObjectId,
-            require: true,
+            required: true,
             ref: 'products',
         },
         amount: {
             type: Number,
-            require: true,
+            required: true,
         },
         cost: {
             type: Number,
-            require: true
+            required: true
         }
     }
 )

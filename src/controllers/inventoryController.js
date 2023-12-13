@@ -1,27 +1,19 @@
-import productService from "../service/productService.js";
+import inventoryService from "../service/inventoryService.js";
 import Joi from "joi";
-import formidable from "formidable";
-import path from "path";
-import fs from "fs";
 import ExcelJS from "exceljs";
 
 
 const Schema = Joi.object().keys({
-    name: Joi.string().min(3).max(30).label('name'),
-    image: Joi.string().min(3).label('image'),
+    amount: Joi.number().label('amount'),
     price: Joi.number().label('price'),
-    sold: Joi.number().label('fullName'),
-    productsAvailable: Joi.number().label('email'),
-    description: Joi.string().label('phoneNumber'),
-    idCategory: Joi.string().label('idCategory'),
 });
 
-const getProduct = async (req, res) => {
+const getInventory = async (req, res) => {
     try {
-        const perPage = 12;
+        const perPage = 2;
         let page = parseInt(req.query.page) || 1;
         page = Math.max(page, 1);
-        const response = await productService.getProduct(page, perPage);
+        const response = await inventoryService.getInventory(page, perPage);
         return res.status(200).json(
             {
                 status: "OK",
@@ -38,14 +30,14 @@ const getProduct = async (req, res) => {
     }
 }
 
-const searchProduct = async (req, res) => {
+const searchInventory = async (req, res) => {
     try {
         const perPage = 2;
         let keyword = req.query.keyword || "";
         let page = parseInt(req.query.page) || 1;
         page = Math.max(page, 1);
 
-        const response = await productService.searchProduct({ perPage, keyword, page });
+        const response = await inventoryService.searchInventory({ perPage, keyword, page });
         return res.status(200).json(
             {
                 status: "OK",
@@ -65,9 +57,9 @@ const searchProduct = async (req, res) => {
 
 const getById = async (req, res) => {
     try {
-        const idProduct = req.params.id;
+        const idInventory = req.params.id;
 
-        const response = await productService.getProductById({ idProduct });
+        const response = await inventoryService.getInventoryById({ idInventory });
         return res.status(200).json(
             {
                 status: "OK",
@@ -85,12 +77,20 @@ const getById = async (req, res) => {
     }
 }
 
-
-const getByCategory = async (req, res) => {
+const getInventoryByDate = async (req, res) => {
     try {
-        const idCategory = req.params.id;
+        let startDate = req.query.startdate;
+        let endDate = req.query.enddate;
+        let perPage = parseInt(req.query.perpage) || 3;
+        // perPage = Math.max(perPage, 3);
+        let page = parseInt(req.query.page) || 1;
+        page = Math.max(page, 1);
 
-        const response = await productService.getProductByCategory({ idCategory });
+        if (!startDate || !endDate) {
+            throw new Error("Invalid date range");
+        }
+
+        const response = await inventoryService.getInventoryByDate({ startDate, endDate, page, perPage });
         return res.status(200).json(
             {
                 status: "OK",
@@ -108,35 +108,21 @@ const getByCategory = async (req, res) => {
     }
 }
 
-const createProduct = async (req, res) => {
+const createInventory = async (req, res) => {
     try {
-        const { name, unit, price, productsAvailable, description, idCategory } = req.body;
-        const image = req.files.image;
-        const detailImages = req.files.detailImages;
+        const { idAdmin, idProduct, amount, price, description } = req.body;
 
-        if (!name || !image || !unit || !price || !productsAvailable || !description || !idCategory) {
+        if (!idAdmin || !idProduct || !amount || !price || !description) {
             throw new Error(`Input is required`);
         }
 
-        const validationInput = Schema.validate({ name, price, productsAvailable, description, idCategory });
+        const validationInput = Schema.validate({ amount, price });
         if (validationInput.error) {
             const errorMessages = validationInput.error.details.map((error) => error.message);
             throw new Error(`Dữ liệu không hợp lệ: ${errorMessages.join(', ')}`);
         }
 
-        const imageName = image[0].filename;
-        const detailImageNames = [];
-
-        if (detailImages) {
-            for (const detailImage of detailImages) {
-                detailImageNames.push(detailImage.filename);
-            }
-        }
-
-        console.log('1:   ', imageName);
-        console.log('2:   ', detailImageNames);
-
-        const response = await productService.createProduct({ name, imageName, detailImageNames, unit, price, productsAvailable, description, idCategory });
+        const response = await inventoryService.createInventory({ idAdmin, idProduct, amount, price, description });
 
         return res.status(200).json({
             status: "OK",
@@ -151,7 +137,7 @@ const createProduct = async (req, res) => {
     }
 }
 
-const updateProduct = async (req, res) => {
+const updateInventory = async (req, res) => {
     try {
         const idProduct = req.params.id;
         const { name, unit, price, productsAvailable, description, idCategory } = req.body;
@@ -184,7 +170,7 @@ const updateProduct = async (req, res) => {
         console.log('1:   ', imageName);
         console.log('2:   ', detailImageNames);
 
-        const response = await productService.updateProduct({ idProduct, name, imageName, detailImageNames, unit, price, productsAvailable, description, idCategory });
+        const response = await inventoryService.updateProduct({ idProduct, name, imageName, detailImageNames, unit, price, productsAvailable, description, idCategory });
 
         return res.status(200).json({
             status: "OK",
@@ -199,14 +185,14 @@ const updateProduct = async (req, res) => {
     }
 }
 
-const deleteProduct = async (req, res) => {
+const deleteInventory = async (req, res) => {
     try {
         const idProduct = req.params.id;
         if (!idProduct) {
             throw new Error('idProduct is required');
         }
 
-        const response = await productService.deleteProduct(idProduct);
+        const response = await inventoryService.deleteProduct(idProduct);
         return res.status(200).json(
             {
                 status: "OK",
@@ -225,8 +211,8 @@ const deleteProduct = async (req, res) => {
 
 const exportExcel = async (req, res) => {
     try {
-        const response = await productService.exportExcel();
-        
+        const response = await inventoryService.exportExcel();
+
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Danh sách sản phẩm', { properties: { tabColor: { argb: 'FFC0000' } } });
 
@@ -274,12 +260,12 @@ const exportExcel = async (req, res) => {
 };
 
 export default {
-    getProduct,
-    searchProduct,
+    getInventory,
+    searchInventory,
     getById,
-    getByCategory,
-    createProduct,
-    updateProduct,
-    deleteProduct,
+    getInventoryByDate,
+    createInventory,
+    updateInventory,
+    deleteInventory,
     exportExcel
 }

@@ -22,11 +22,11 @@ const adminSchema = new mongoose.Schema(
         },
         phone: {
             type: String,
-            require: true,
+            required: true,
         },
         permission: {
             type: Number,
-            require: true,
+            required: true,
         }
     },
     {

@@ -5,6 +5,7 @@ import orderRouter from "./orderRouter.js";
 import categoryRouter from "./categoryRoute.js";
 import voucherRouter from "./voucherRouter.js";
 import cartRouter from "./cartRouter.js";
+import inventoryRouter from "./inventoryRouter.js";
 
 const routes = (app) => {
     app.use('/api/admin', adminRouter);
@@ -14,6 +15,7 @@ const routes = (app) => {
     app.use('/api/category', categoryRouter);
     app.use('/api/voucher', voucherRouter);
     app.use('/api/cart', cartRouter);
+    app.use('/api/inventory', inventoryRouter);
 }
 
 export default routes;

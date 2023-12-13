@@ -4,12 +4,12 @@ const detailImageSchema = new mongoose.Schema(
     {
         idProduct: {
             type: mongoose.Schema.Types.ObjectId,
-            require: true,
+            required: true,
             ref: 'products'
         },
         detailImage: {
             type: String,
-            require: true,
+            required: true,
         }
     },
     {

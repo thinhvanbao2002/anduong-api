@@ -29,8 +29,9 @@ const searchProduct = async ({ perPage, keyword, page }) => {
 
 const getProductById = async ({ idProduct }) => {
     const data = await ProductModel.findById(idProduct);
+    const detailImage = await DetailImageModel.find({idProduct: idProduct});
     if (data) {
-        return data;
+        return {data, detailImage};
     } else {
         throw new Error("Can't get product");
     }
@@ -46,10 +47,11 @@ const getProductByCategory = async ({ idCategory }) => {
     }
 }
 
-const createProduct = async ({ name, imageName, detailImageNames, price, productsAvailable, description, idCategory }) => {
+const createProduct = async ({ name, imageName, detailImageNames, unit, price, productsAvailable, description, idCategory }) => {
     const createProducted = await ProductModel.create({
         name: name,
         image: imageName,
+        unit: unit,
         price: price,
         sold: 0,
         productsAvailable: productsAvailable,
@@ -80,7 +82,7 @@ const createProduct = async ({ name, imageName, detailImageNames, price, product
 };
 
 
-const updateProduct = async ({ idProduct, name, imageName, detailImageNames, price, productsAvailable, description, idCategory }) => {
+const updateProduct = async ({ idProduct, name, imageName, detailImageNames, unit, price, productsAvailable, description, idCategory }) => {
     const existingProduct = await ProductModel.findById(idProduct);
     if (!existingProduct) {
         throw new Error("Can't find Product");
@@ -92,6 +94,7 @@ const updateProduct = async ({ idProduct, name, imageName, detailImageNames, pri
         existingProduct.image = imageName;
     }
 
+    existingProduct.unit = unit;
     existingProduct.price = price;
     existingProduct.productsAvailable = productsAvailable;
     existingProduct.description = description;
