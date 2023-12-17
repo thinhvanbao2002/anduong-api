@@ -9,7 +9,8 @@ const Schema = Joi.object({
 
 const getOrder = async (req, res) => {
     try {
-        const perPage = 2;
+        let perPage = parseInt(req.query.perpage) || 10;
+        perPage = Math.max(perPage, 5);
         let page = parseInt(req.query.page) || 1;
         page = Math.max(page, 1);
 
@@ -176,7 +177,6 @@ const deleteOrder = async (req, res) => {
 const exportExcel = async (req, res) => {
     try {
         const response = await orderService.exportExcel();
-        console.log(response);
 
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Danh sách đơn hàng', { properties: { tabColor: { argb: 'FFC0000' } } });
@@ -185,11 +185,10 @@ const exportExcel = async (req, res) => {
         sheet.columns = [
             { header: "Mã đơn hàng", key: "_id", width: 30 },
             { header: "Họ tên", key: "idUser.fullName", width: 20 },
-            { header: "Email", key: "idUser.email", width: 20 },
             { header: "SĐT", key: "idUser.phone", width: 20 },
             { header: "Địa chỉ", key: "idUser.address", width: 50 },
-            { header: "Mã voucher", key: "idVoucher._id", width: 30 },
-            { header: "Giảm giá (%)", key: "idVoucher.off", width: 10 },
+            { header: "Mã voucher", key: "idVoucher.title", width: 30 },
+            { header: "Giảm giá (%)", key: "idVoucher.off", width: 12 },
             { header: "Thành tiền", key: "total", width: 10 },
             { header: "Ngày tạo", key: "createdAt", width: 20 },
             { header: "Cập nhật gần đây", key: "updatedAt", width: 20 },
@@ -201,10 +200,9 @@ const exportExcel = async (req, res) => {
             const row = {
                 _id: order._id,
                 "idUser.fullName": order.idUser ? order.idUser.fullName : '',
-                "idUser.email": order.idUser ? order.idUser.email : '',
                 "idUser.phone": order.idUser ? order.idUser.phone : '',
                 "idUser.address": order.idUser ? order.idUser.address : '',
-                "idVoucher._id": order.idVoucher ? order.idVoucher._id : '',
+                "idVoucher.title": order.idVoucher ? order.idVoucher.title : '',
                 "idVoucher.off": order.idVoucher ? order.idVoucher.off : '',
                 "total": order.total,
                 "createdAt": order.createdAt,

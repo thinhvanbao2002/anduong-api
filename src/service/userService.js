@@ -85,8 +85,9 @@ const login = async ({ username, password }) => {
 }
 
 const getUser = async ({ page, perPage }) => {
-    const count = await UserModel.count();
-    const data = await UserModel.find().limit(perPage).skip((page - 1) * perPage);
+    console.log(page, perPage);
+    const count = await UserModel.count({ status: true });
+    const data = await UserModel.find({ status: true }).skip((page - 1) * perPage).limit(perPage);
     if (count === 0 || data.length === 0) {
         throw new Error("Can't get Users");
     }
@@ -165,7 +166,8 @@ const deleteUser = async (userID) => {
     }
 
     deletedUser.status = false;
-    return deletedUser;
+    const result = await deletedUser.save();
+    return result;
 }
 
 const exportExcel = async () => {

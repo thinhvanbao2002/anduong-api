@@ -10,7 +10,8 @@ const Schema = Joi.object().keys({
 
 const getInventory = async (req, res) => {
     try {
-        const perPage = 2;
+        let perPage = parseInt(req.query.page) || 10;
+        perPage = Math.max(perPage, 5);
         let page = parseInt(req.query.page) || 1;
         page = Math.max(page, 1);
         const response = await inventoryService.getInventory(page, perPage);
@@ -82,7 +83,7 @@ const getInventoryByDate = async (req, res) => {
         let startDate = req.query.startdate;
         let endDate = req.query.enddate;
         let perPage = parseInt(req.query.perpage) || 3;
-        // perPage = Math.max(perPage, 3);
+        perPage = Math.max(perPage, 3);
         let page = parseInt(req.query.page) || 1;
         page = Math.max(page, 1);
 
@@ -187,12 +188,12 @@ const updateInventory = async (req, res) => {
 
 const deleteInventory = async (req, res) => {
     try {
-        const idProduct = req.params.id;
-        if (!idProduct) {
-            throw new Error('idProduct is required');
+        const idInventory = req.params.id;
+        if (!idInventory) {
+            throw new Error('idInventory is required');
         }
 
-        const response = await inventoryService.deleteProduct(idProduct);
+        const response = await inventoryService.deleteInventory({ idInventory });
         return res.status(200).json(
             {
                 status: "OK",
@@ -214,40 +215,39 @@ const exportExcel = async (req, res) => {
         const response = await inventoryService.exportExcel();
 
         const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Danh sách sản phẩm', { properties: { tabColor: { argb: 'FFC0000' } } });
+        const sheet = workbook.addWorksheet('Danh sách nhập xuất kho', { properties: { tabColor: { argb: 'FFC0000' } } });
 
-        // Đặt tiêu đề cho các cột
-        sheet.columns = [
-            { header: "Mã sản phẩm", key: "_id", width: 30 },
-            { header: "Tên sản phẩm", key: "name", width: 30 },
-            { header: "Danh mục", key: "idCategory.title", width: 30 },
+        const columns = [
+            { header: "Mã đơn", key: "_id", width: 30 },
+            { header: "Tên sản phẩm", key: "productName", width: 30 }, // Chỉnh sửa key thành "productName"
             { header: "Giá", key: "price", width: 20 },
-            { header: "Số lượng còn", key: "productsAvailable", width: 20 },
-            { header: "Đã bán", key: "sold", width: 20 },
+            { header: "Số lượng", key: "amount", width: 20 },
+            { header: "Chi tiết", key: "description", width: 20 },
             { header: "Ngày tạo", key: "createdAt", width: 30 },
-            { header: "Cập nhật gần đây", key: "updatedAt", width: 30 },
         ];
 
+        // Đặt tiêu đề cho các cột
+        sheet.columns = columns;
+
         // Thêm dữ liệu vào sheet
-        response.forEach(product => {
+        response.forEach(inventory => {
             const row = {
-                _id: product._id.toString(),
-                name: product.name,
-                "idCategory.title": product.idCategory ? product.idCategory.title : '',
-                price: product.price.toString(),
-                productsAvailable: product.productsAvailable.toString(),
-                sold: product.sold.toString(),
-                createdAt: product.createdAt.toISOString(),
-                updatedAt: product.updatedAt.toISOString(),
+                _id: inventory._id.toString(),
+                productName: inventory.idProduct ? inventory.idProduct.name : '', // Thay đổi key thành "productName"
+                price: inventory.price.toString(),
+                amount: inventory.amount.toString(),
+                description: inventory.description.toString(),
+                createdAt: inventory.createdAt.toISOString(),
             };
 
             sheet.addRow(row);
         });
 
+
         const buffer = await workbook.xlsx.writeBuffer();
 
         // Set content type, Set header Content-Disposition
-        res.setHeader('Content-Disposition', 'attachment; filename=products_list.xlsx');
+        res.setHeader('Content-Disposition', 'attachment; filename=inventory_list.xlsx');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
         res.send(buffer);

@@ -5,9 +5,9 @@ const router = express.Router();
 
 router.get('/get', orderController.getOrder);
 
-router.get('/search', orderController.searchOrder);
+router.get('/search', orderController.searchOrder); // truyền theo query, search theo id user hoặc id order
 
-router.get('/searchbydate', orderController.searchOrderByDate);
+router.get('/searchbydate', orderController.searchOrderByDate); // truyền startdate enddate page perpage vào query
 
 router.post('/create', orderController.createOrder);
 

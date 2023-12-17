@@ -5,8 +5,14 @@ import InventoryModel from "../models/inventoryModel.js";
 const getInventory = async (page, perPage) => {
   const count = await InventoryModel.count();
   const data = await InventoryModel.find()
-    .populate('idAdmin')
-    .populate('idProduct')
+    .populate({
+      path: 'idAdmin',
+      select: 'fullName'
+    })
+    .populate({
+      path: 'idProduct',
+      select: 'name'
+    })
     .skip((page - 1) * perPage)
     .limit(perPage);
   if (count === 0 || data.length === 0) {
@@ -41,12 +47,32 @@ const getInventoryById = async ({ idInventory }) => {
 
 }
 
-const getInventoryByDate = async ({ idCategory }) => {
-  const data = await InventoryModel.find({ idCategory: idCategory });
-  if (data.length > 0) {
-    return data;
-  } else {
-    throw new Error("Can't get products for the specified category");
+const getInventoryByDate = async ({ startDate, endDate, page, perPage }) => {
+  try {
+    const data = await InventoryModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          },
+        },
+      },
+    ])
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+
+    const count = data.length;
+
+    // Check if there is any data returned
+    if (data.length > 0) {
+      return { count, data };
+    } else {
+      throw new Error("No records found");
+    }
+  } catch (error) {
+    throw new Error(`Error searching for inventory: ${error.message}`);
   }
 }
 
@@ -110,30 +136,27 @@ const updateInventory = async ({ idProduct, name, imageName, detailImageNames, u
 }
 
 
-const deleteInventory = async (idProduct) => {
-  const checkOrder = await DetailOrder.findOne({ idProduct });
-  if (checkOrder) {
-    throw new Error("Cannot delete product because there are order associated with it.");
+const deleteInventory = async ({ idInventory }) => {
+  const deleltedInventory = await InventoryModel.findByIdAndDelete(idInventory);
+  if (!deleltedInventory) {
+    throw new Error("Can't delete Inventory");
   }
-
-  const deletedProduct = await InventoryModel.findByIdAndDelete(idProduct);
-  const deletedDetailImageProduct = await DetailImageModel.findByIdAndDelete(idProduct);
-  if (!deletedProduct) {
-    throw new Error("Can't delete Product");
-  }
-  return { deletedProduct, deletedDetailImageProduct };
+  return { deleltedInventory };
 }
 
 const exportExcel = async () => {
   try {
-    const dataOProducts = await InventoryModel.find()
-      .populate('idCategory');
+    const dataInventory = await InventoryModel.find()
+      .populate({
+        path: 'idProduct',
+        select: 'name'
+      });
 
-    if (!dataOProducts) {
-      throw new Error("Can't find product");
+    if (!dataInventory) {
+      throw new Error("Can't find dataInventory");
     }
 
-    return dataOProducts;
+    return dataInventory;
   } catch (error) {
     throw error;
   }

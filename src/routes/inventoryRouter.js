@@ -14,8 +14,6 @@ router.get('/searchbydate', inventoryController.getInventoryByDate);
 
 router.post('/create', inventoryController.createInventory);
 
-router.put('/update/:id', inventoryController.updateInventory);
-
 router.delete('/delete/:id', inventoryController.deleteInventory);
 
 router.get('/export', inventoryController.exportExcel);
