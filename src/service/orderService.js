@@ -10,7 +10,7 @@ const getOrder = async ({ perPage, page }) => {
   const dataOrder = await OrderModel.find()
     .populate({
       path: 'idUser',
-      select: 'fullName phone', 
+      select: 'fullName phone',
     })
     .populate('idVoucher')
     .skip((page - 1) * perPage).limit(perPage);
@@ -38,6 +38,11 @@ const searchOrder = async ({ perPage, keyword, page }) => {
 
   const data = await OrderModel
     .find(getKeyword)
+    .populate({
+      path: 'idUser',
+      select: 'fullName phone',
+    })
+    .populate('idVoucher')
     .limit(perPage)
     .skip((page - 1) * perPage);
 
@@ -45,7 +50,13 @@ const searchOrder = async ({ perPage, keyword, page }) => {
     throw new Error("Can't find any matching orders.");
   }
 
-  return data;
+  const result = await Promise.all(data.map(async (order) => {
+    const idOrder = order._id;
+    const detailOrder = await DetailOrder.find({ idOrder: idOrder });
+    return { ...order.toObject(), detailOrder };
+  }));
+
+  return result;
 };
 
 const searchOrderByDate = async ({ startDate, endDate, page, perPage }) => {
