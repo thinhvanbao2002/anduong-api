@@ -21,6 +21,8 @@ router.post('/create', uploadFields, productController.createProduct);
 
 router.put('/update/:id', uploadFields, productController.updateProduct);
 
+router.put('/updatesold/:id', productController.updateProductSold);
+
 router.delete('/delete/:id', productController.deleteProduct);
 
 router.get('/export', productController.exportExcel);

@@ -199,6 +199,30 @@ const updateProduct = async (req, res) => {
     }
 }
 
+const updateProductSold = async (req, res) => {
+    try {
+        const idProduct = req.params.id;
+        const { amount } = req.body;
+
+        if (!amount) {
+            throw new Error(`Input is required`);
+        }
+
+        const response = await productService.updateProductSold({ idProduct, amount });
+
+        return res.status(200).json({
+            status: "OK",
+            data: response
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            status: "ERR",
+            error: error.message
+        });
+    }
+}
+
 const deleteProduct = async (req, res) => {
     try {
         const idProduct = req.params.id;
@@ -226,7 +250,7 @@ const deleteProduct = async (req, res) => {
 const exportExcel = async (req, res) => {
     try {
         const response = await productService.exportExcel();
-        
+
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Danh sách sản phẩm', { properties: { tabColor: { argb: 'FFC0000' } } });
 
@@ -280,6 +304,7 @@ export default {
     getByCategory,
     createProduct,
     updateProduct,
+    updateProductSold,
     deleteProduct,
     exportExcel
 }
