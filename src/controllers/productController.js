@@ -223,7 +223,7 @@ const updateProductSoldUp = async (req, res) => {
     }
 }
 
-const updateProductSoldDown = async (req, res) => {
+const updateProductVailable = async (req, res) => {
     try {
         const idProduct = req.params.id;
         const { amount } = req.body;
@@ -232,7 +232,7 @@ const updateProductSoldDown = async (req, res) => {
             throw new Error(`Input is required`);
         }
 
-        const response = await productService.updateProductSoldDown({ idProduct, amount });
+        const response = await productService.updateProductVailable({ idProduct, amount });
 
         return res.status(200).json({
             status: "OK",
@@ -329,7 +329,7 @@ export default {
     createProduct,
     updateProduct,
     updateProductSoldUp,
-    updateProductSoldDown,
+    updateProductVailable,
     deleteProduct,
     exportExcel
 }

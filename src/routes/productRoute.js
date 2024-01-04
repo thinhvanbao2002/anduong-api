@@ -23,7 +23,7 @@ router.put('/update/:id', uploadFields, productController.updateProduct);
 
 router.put('/updatesoldup/:id', productController.updateProductSoldUp);
 
-router.put('/updatesolddown/:id', productController.updateProductSoldDown);
+router.put('/updateproductvailable/:id', productController.updateProductVailable);
 
 router.delete('/delete/:id', productController.deleteProduct);
 
