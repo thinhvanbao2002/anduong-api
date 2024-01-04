@@ -199,7 +199,7 @@ const updateProduct = async (req, res) => {
     }
 }
 
-const updateProductSold = async (req, res) => {
+const updateProductSoldUp = async (req, res) => {
     try {
         const idProduct = req.params.id;
         const { amount } = req.body;
@@ -208,7 +208,31 @@ const updateProductSold = async (req, res) => {
             throw new Error(`Input is required`);
         }
 
-        const response = await productService.updateProductSold({ idProduct, amount });
+        const response = await productService.updateProductSoldUp({ idProduct, amount });
+
+        return res.status(200).json({
+            status: "OK",
+            data: response
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            status: "ERR",
+            error: error.message
+        });
+    }
+}
+
+const updateProductSoldDown = async (req, res) => {
+    try {
+        const idProduct = req.params.id;
+        const { amount } = req.body;
+
+        if (!amount) {
+            throw new Error(`Input is required`);
+        }
+
+        const response = await productService.updateProductSoldDown({ idProduct, amount });
 
         return res.status(200).json({
             status: "OK",
@@ -304,7 +328,8 @@ export default {
     getByCategory,
     createProduct,
     updateProduct,
-    updateProductSold,
+    updateProductSoldUp,
+    updateProductSoldDown,
     deleteProduct,
     exportExcel
 }

@@ -124,13 +124,30 @@ const updateProduct = async ({ idProduct, name, imageName, detailImageNames, uni
     return { updateProducted, createdImageDetails };
 }
 
-const updateProductSold = async ({ idProduct, amount }) => {
+const updateProductSoldUp = async ({ idProduct, amount }) => {
     const existingProduct = await ProductModel.findById(idProduct);
     if (!existingProduct) {
         throw new Error("Can't find Product");
     }
 
     existingProduct.sold = existingProduct.sold + amount;
+
+    const updateProducted = await existingProduct.save();
+
+    if (!updateProducted) {
+        throw new Error("Can't update Product");
+    }
+
+    return updateProducted;
+}
+
+const updateProductSoldDown = async ({ idProduct, amount }) => {
+    const existingProduct = await ProductModel.findById(idProduct);
+    if (!existingProduct) {
+        throw new Error("Can't find Product");
+    }
+
+    existingProduct.sold = existingProduct.sold - amount;
 
     const updateProducted = await existingProduct.save();
 
@@ -177,7 +194,8 @@ export default {
     getProductByCategory,
     createProduct,
     updateProduct,
-    updateProductSold,
+    updateProductSoldUp,
+    updateProductSoldDown,
     deleteProduct,
     exportExcel
 }
