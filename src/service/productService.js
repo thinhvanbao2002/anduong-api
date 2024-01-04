@@ -124,13 +124,13 @@ const updateProduct = async ({ idProduct, name, imageName, detailImageNames, uni
     return { updateProducted, createdImageDetails };
 }
 
-const updateProductAvailable = async ({ idProduct, amount }) => {
+const updateProductSoldUp = async ({ idProduct, amount }) => {
     const existingProduct = await ProductModel.findById(idProduct);
     if (!existingProduct) {
         throw new Error("Can't find Product");
     }
 
-    existingProduct.productsAvailable = existingProduct.productsAvailable - amount;
+    existingProduct.sold = existingProduct.sold + amount;
 
     const updateProducted = await existingProduct.save();
 
@@ -141,13 +141,13 @@ const updateProductAvailable = async ({ idProduct, amount }) => {
     return updateProducted;
 }
 
-const updateProductSoldDown = async ({ idProduct, amount }) => {
+const updateProductAvailable = async ({ idProduct, amount }) => {
     const existingProduct = await ProductModel.findById(idProduct);
     if (!existingProduct) {
         throw new Error("Can't find Product");
     }
 
-    existingProduct.sold = existingProduct.sold - amount;
+    existingProduct.productsAvailable = existingProduct.productsAvailable - amount;
 
     const updateProducted = await existingProduct.save();
 
