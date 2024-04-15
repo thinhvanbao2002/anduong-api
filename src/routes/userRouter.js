@@ -8,7 +8,7 @@ router.get('/get', userController.getUser);
 
 router.get('/getbyid/:id', userController.getUserById);
 
-router.get('/search', authentication.userCheckToken, userController.searchUser);
+router.get('/search',  userController.searchUser);
 
 router.get('/acceptverifymail/:id/:token', userController.verifyEmail);
 
@@ -20,7 +20,7 @@ router.put('/update/:id', userController.updateUser);
 
 router.delete('/delete/:id', userController.deleteUser);
 
-router.put('/updateavt/:id', authentication.userCheckToken, userController.updateAvtUser);
+router.put('/updateavt/:id', userController.updateAvtUser);
 
 router.get('/export', userController.exportExcel);
 

@@ -63,10 +63,10 @@ const createPersonnal = async ({ username, email, password, fullName, phone }) =
         throw new Error("Username already exists");
     }
 
-    const hashPassword = bcrypt.hashSync(password, parseInt(process.env.SALT));
+    // const hashPassword = bcrypt.hashSync(password, parseInt(process.env.SALT));
     const createdPersonnal = await AdminModel.create({
         username: username,
-        password: hashPassword,
+        password: password,
         fullName: fullName,
         email: email,
         phone: phone,

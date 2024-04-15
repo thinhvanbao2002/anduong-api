@@ -8,7 +8,7 @@ router.get('/get', categoryController.getCategory);
 
 router.get('/search', categoryController.searchCategory);
 
-router.post('/create', authentication.adminCheckToken, categoryController.createCategory);
+router.post('/create',categoryController.createCategory);
 
 router.put('/update/:id', categoryController.updateCategory);
 

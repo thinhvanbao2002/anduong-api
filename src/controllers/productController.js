@@ -15,7 +15,7 @@ const Schema = Joi.object().keys({
     description: Joi.string().label('phoneNumber'),
     idCategory: Joi.string().label('idCategory'),
 });
-
+        
 const getProduct = async (req, res) => {
     try {
         const perPage = 12;
@@ -40,7 +40,7 @@ const getProduct = async (req, res) => {
 
 const searchProduct = async (req, res) => {
     try {
-        const perPage = 2;
+        const perPage = 100;
         let keyword = req.query.keyword || "";
         let page = parseInt(req.query.page) || 1;
         page = Math.max(page, 1);
@@ -232,7 +232,7 @@ const updateProductVailable = async (req, res) => {
             throw new Error(`Input is required`);
         }
 
-        const response = await productService.updateProductVailable({ idProduct, amount });
+        const response = await productService.updateProductAvailable({ idProduct, amount });
 
         return res.status(200).json({
             status: "OK",

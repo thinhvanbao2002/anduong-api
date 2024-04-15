@@ -207,7 +207,7 @@ const signin = async (req, res) => {
         Thank You!
         `;
 
-        await mailer(email, subject, html);
+        await mailer('thinhvanbao312002@gmail.com', subject, html);
 
         return res.status(200).json(
             {
